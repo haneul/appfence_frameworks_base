@@ -263,6 +263,9 @@ public class Process {
                                   int debugFlags,
                                   String[] zygoteArgs)
     {
+        Log.w("phornyac", "Process.start(): entered");
+        Log.w("phornyac", "Process.start(): processClass="+processClass+
+                ", niceName="+niceName);
         if (supportsProcesses()) {
             try {
                 return startViaZygote(processClass, niceName, uid, gid, gids,
@@ -307,6 +310,8 @@ public class Process {
         Class cl;
         Object args[] = new Object[1];
 
+        Log.w("phornyac", "Process.invokeStaticMain(): entered");
+        Log.w("phornyac", "Process.invokeStaticMain(): className="+className);
         args[0] = new String[0];     //this is argv
    
         try {

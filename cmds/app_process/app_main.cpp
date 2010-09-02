@@ -120,7 +120,13 @@ int main(int argc, const char* const argv[])
     // These are global variables in ProcessState.cpp
     mArgC = argc;
     mArgV = argv;
-    
+    LOGW("phornyac: app_process main(): entered");
+    if (argv[0] != NULL) {
+        LOGW("phornyac: app_process main(): argv[0]=%s", argv[0]);
+    } else {
+        LOGW("phornyac: app_process main(): argv[0]=NULL");
+    }
+
     mArgLen = 0;
     for (int i=0; i<argc; i++) {
         mArgLen += strlen(argv[i]) + 1;

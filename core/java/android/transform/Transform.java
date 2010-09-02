@@ -114,6 +114,13 @@ public final class Transform {
         return detaintedZip;
     }
     
+    /**
+     * Something something...
+     *
+     * @returns An integer for now, a String array later.
+     */
+    public static final native int getArgV();
+
 //    /**
 //     * Intentional build error:
 //     */
