@@ -2393,6 +2393,14 @@ public final class Settings {
         public static final String USE_LOCATION_FOR_SERVICES = "use_location";
 
         /**
+         * Flag for enforcing the current exposure policy on network
+         * transmissions.
+         * Type: int ( 0 = don't enforce, 1 = enforce )
+         * @hide
+         */
+        public static final String ENFORCE_EXPOSURE_POLICY = "enforce_policy";
+
+        /**
          * Controls whether settings backup is enabled.
          * Type: int ( 0 = disabled, 1 = enabled )
          * @hide
