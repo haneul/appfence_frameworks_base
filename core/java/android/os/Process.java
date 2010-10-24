@@ -263,9 +263,9 @@ public class Process {
                                   int debugFlags,
                                   String[] zygoteArgs)
     {
-        Log.w("phornyac", "Process.start(): entered");
-        Log.w("phornyac", "Process.start(): processClass="+processClass+
-                ", niceName="+niceName);
+        //Log.w("phornyac", "Process.start(): entered");
+        //Log.w("phornyac", "Process.start(): processClass="+processClass+
+        //        ", niceName="+niceName);
         if (supportsProcesses()) {
             try {
                 return startViaZygote(processClass, niceName, uid, gid, gids,
