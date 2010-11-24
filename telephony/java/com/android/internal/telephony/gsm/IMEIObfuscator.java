@@ -31,6 +31,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import android.util.ProcessName;
 import android.util.Log;
 
 /**
@@ -66,7 +67,7 @@ public class IMEIObfuscator {
     public IMEIObfuscator() {
         //XXX: update these to appropriate values!
         Log.w(LOG_TAG, "phornyac: IMEIObfuscator: entered");
-        mProcessName = "com.phornyac.changeme";
+        mProcessName = ProcessName.getProcessName();
         mDeviceId = "1234567890";
         Log.w(LOG_TAG, "phornyac: IMEIObfuscator: mProcessName=" +
                 mProcessName + ", mDeviceId=" + mDeviceId);
