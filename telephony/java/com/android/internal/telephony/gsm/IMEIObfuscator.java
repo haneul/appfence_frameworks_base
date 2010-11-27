@@ -68,7 +68,7 @@ public class IMEIObfuscator {
         //XXX: update these to appropriate values!
         Log.w(LOG_TAG, "phornyac: IMEIObfuscator: entered");
         mProcessName = ProcessName.getProcessName();
-        mDeviceId = "1234567890";
+        mDeviceId = "123456789012";
         Log.w(LOG_TAG, "phornyac: IMEIObfuscator: mProcessName=" +
                 mProcessName + ", mDeviceId=" + mDeviceId);
         try {

@@ -117,7 +117,7 @@ public final class Transform {
     /**
      * Something something...
      *
-     * @returns An integer for now, a String array later.
+     * Returns: An integer for now, a String array later.
      */
     public static final native int getArgV();
 

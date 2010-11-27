@@ -162,7 +162,9 @@ public class GSMPhone extends PhoneBase {
 
         //phornyac: construct a new Obfuscator
         //public AESObfuscator(byte[] salt, String applicationId, String deviceId) {
+		Log.w("g-s-m", "phornyac: calling new IMEIObfuscator()");
         mObfuscator = new IMEIObfuscator();
+		Log.w("g-s-m", "phornyac: returned from calling new IMEIObfuscator");
 
         mCM.registerForAvailable(this, EVENT_RADIO_AVAILABLE, null);
         mSIMRecords.registerForRecordsLoaded(this, EVENT_SIM_RECORDS_LOADED, null);
@@ -1284,12 +1286,13 @@ public class GSMPhone extends PhoneBase {
                 }
 
                 mImei = (String)ar.result;
-		// begin WITH_TAINT_TRACKING
-		Log.w("phornyac", "GSM: mImei = \"" + mImei + "\"");
-        mImei = mObfuscator.anonymizeIMEI(mImei);
-		Log.w("phornyac", "GSM: anonymized mImei = \"" + mImei + "\"");
-        Taint.addTaintString(mImei, Taint.TAINT_IMEI);
-        // end WITH_TAINT_TRACKING
+        		// begin WITH_TAINT_TRACKING
+        		Log.w("g-s-m", "phornyac: mImei = \"" + mImei + "\"");
+                /* My phone's IMEI: 354958030334719 */
+                mImei = mObfuscator.anonymizeIMEI(mImei);
+        		Log.w("g-s-m", "phornyac: anonymized mImei = \"" + mImei + "\"");
+                Taint.addTaintString(mImei, Taint.TAINT_IMEI);
+                // end WITH_TAINT_TRACKING
             break;
 
             case EVENT_GET_IMEISV_DONE:

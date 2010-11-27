@@ -19,29 +19,13 @@
 
 package android.util;
 
-//import android.util.Log;
-
-/**
- * A "trusted transformation library." Contains methods that transform
- * [sensor] data from one form to another, then uses dalvik.system.Taint
- * to modify the taint tags/labels on the data.
- */
 public final class ProcessName {
-
-    private static final String TAG = "ProcessName";
-
-    ///**
-    // * Constructor...
-    // */
-    //ProcessName() {
-    //    //Nothing to do yet.
-    //}
 
     /**
      * Gets the name of the calling process.
      * Static, so class doesn't have to be instantiated.
      */
-    native public static String getProcessName();
+    public static native String getProcessName();
 
 }
 
