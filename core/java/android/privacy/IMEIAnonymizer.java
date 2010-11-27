@@ -16,9 +16,6 @@
 
 package android.privacy;
 
-//import android.privacy.Base64;
-//import android.privacy.Base64DecoderException;
-
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.spec.KeySpec;
@@ -47,62 +44,10 @@ public final class IMEIAnonymizer {
     private static final byte[] IV =
         { 16, 74, 71, -80, 32, 101, -47, 72, 117, -14, 0, -29, 70, 65, -12, 74 };
     private static final String header = "android.privacy.IMEIAnonymizer-1|";
-
-    //private Cipher mEncryptor;
-    //private Cipher mDecryptor;
-
     private static final byte[] SALT = new byte[] {
           93, 52  ,  -42,  -23,   22, -121,   28,   25,  124, -117,
          -47,  103,   25, -101,  -99,  -20,   65,  -94,   24,  111
     };
-    //private String mProcessName;
-//    private String mDeviceId;
-
-    ///**
-    // * @param salt an array of random bytes to use for each (un)obfuscation
-    // * @param applicationId application identifier, e.g. the package name
-    // * @param deviceId device identifier. Use as many sources as possible to
-    // *    create this unique identifier.
-    // */
-//    public IMEIAnonymizer() {
-//        //XXX: update these to appropriate values!
-//        Log.w(LOG_TAG, "phornyac: IMEIAnonymizer: entered");
-//        //mProcessName = ProcessName.getProcessName();
-//
-//        /* In original AESObfuscator class, mDeviceId was supposed to be a
-//         * unique device identifier (a la IMEI) that was subsequently used
-//         * in the hashing / key generation, to make it the obfuscated data
-//         * more unique between devices. Not sure that matters much here
-//         * though...
-//         */
-//        mDeviceId = "123456789012";
-//        Log.w(LOG_TAG, "phornyac: IMEIAnonymizer: mDeviceId="+mDeviceId);
-//        /*
-//        try {
-//            SecretKeyFactory factory = SecretKeyFactory.getInstance(KEYGEN_ALGORITHM);
-//            KeySpec keySpec =
-//                new PBEKeySpec((mProcessName + mDeviceId).toCharArray(), SALT, 1024, 256);
-//            SecretKey tmp = factory.generateSecret(keySpec);
-//            SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
-//            mEncryptor = Cipher.getInstance(CIPHER_ALGORITHM);
-//            mEncryptor.init(Cipher.ENCRYPT_MODE, secret, new IvParameterSpec(IV));
-//            mDecryptor = Cipher.getInstance(CIPHER_ALGORITHM);
-//            mDecryptor.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(IV));
-//        } catch (GeneralSecurityException e) {
-//            // This can't happen on a compatible Android device.
-//            throw new RuntimeException("Invalid environment", e);
-//        }
-//        */
-//    }
-
-//    public String anonymizeIMEI(String imei) {
-//        Log.w(LOG_TAG, "phornyac: anonymizeIMEI: entered");
-//        //XXX: update this to just to what we need it to do; skip all the other
-//        //  junk in obfuscate()
-//        //XXX: make sure this returns a string of just digits (no alphabetic
-//        //  characters), and with proper length!
-//        return obfuscate(imei);
-//    }
 
     /**
      * Anonymize the input string, which presumably represents an IMEI
@@ -114,11 +59,16 @@ public final class IMEIAnonymizer {
      *   or null on error.
      */
     public static String anonymize(String orig) {
+        int IMEI_LEN = 15;
         Cipher encryptor;
-        //Cipher decryptor;
         String processName;
         String deviceId;
         String result;
+        char chars[];
+        char c;
+        int val;
+        StringBuilder sb;
+        String imei;
 
         Log.w(LOG_TAG, "phornyac: anonymize: entered");
         if (orig == null) {
@@ -153,8 +103,6 @@ public final class IMEIAnonymizer {
             SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
             encryptor = Cipher.getInstance(CIPHER_ALGORITHM);
             encryptor.init(Cipher.ENCRYPT_MODE, secret, new IvParameterSpec(IV));
-            //decryptor = Cipher.getInstance(CIPHER_ALGORITHM);
-            //decryptor.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(IV));
         } catch (GeneralSecurityException e) {
             // This can't happen on a compatible Android device.
             throw new RuntimeException("Invalid environment", e);
@@ -166,38 +114,58 @@ public final class IMEIAnonymizer {
         try {
             // Header is appended as an integrity check
             result = Base64.encode(encryptor.doFinal((header + orig).getBytes(UTF8)));
-            Log.w(LOG_TAG, "phornyac: anonymize: encoded result="+result);
-            return result;
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Invalid environment", e);
         } catch (GeneralSecurityException e) {
             throw new RuntimeException("Invalid environment", e);
         }
-    }
+        Log.w(LOG_TAG, "phornyac: anonymize: encoded result="+result);
 
-/*  public String unobfuscate(String obfuscated) throws ValidationException {
-        if (obfuscated == null) {
+        /* Finally, adjust the encrypted string so that it matches the
+         * IMEI number format: 15 numbers, no letters or other characters.
+         * Do this by stepping through the first 15 characters in the
+         * encrypted string and, if the character is not a digit, transforming
+         * it into a digit by casting it to an int, then taking modulo 10
+         * (this is deterministic, so we will still get an IMEI number that
+         * is the same every time an app calls this method).
+         * For some more info, see:
+         *   http://download.oracle.com/javase/6/docs/api/java/lang/Character.html
+         *   http://download.oracle.com/javase/6/docs/api/java/lang/String.html
+         */
+
+        /* I expect that this case will never happen, but I never explicitly
+         * looked at the encryption/encoding code to make sure...
+         */
+        if (result.length() < IMEI_LEN) {
+            Log.w(LOG_TAG, "phornyac: anonymize: encoded result string "+
+                    "is too short, returning null");
             return null;
         }
-        try {
-            String result = new String(mDecryptor.doFinal(Base64.decode(obfuscated)), UTF8);
-            // Check for presence of header. This serves as a final integrity check, for cases
-            // where the block size is correct during decryption.
-            int headerIndex = result.indexOf(header);
-            if (headerIndex != 0) {
-                throw new ValidationException("Header not found (invalid data or key)" + ":" +
-                        obfuscated);
-            }
-            return result.substring(header.length(), result.length());
-        } catch (Base64DecoderException e) {
-            throw new ValidationException(e.getMessage() + ":" + obfuscated);
-        } catch (IllegalBlockSizeException e) {
-            throw new ValidationException(e.getMessage() + ":" + obfuscated);
-        } catch (BadPaddingException e) {
-            throw new ValidationException(e.getMessage() + ":" + obfuscated);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("Invalid environment", e);
+        chars = result.toCharArray();
+        sb = new StringBuilder();
+        
+        /* When converting from chars to ints, Character.digit() is
+         * another option besides just direct casting, but it fails
+         * on non-alphanumeric characters, which can result from the
+         * encryption above.
+         */
+        for (int i=0; i < IMEI_LEN; i++) {
+            c = chars[i];
+            //val = Character.digit(c, 10);
+            val = (int)c;
+            val = val % 10;
+            sb.append(val);
         }
+        imei = sb.toString();
+
+        /* Sanity check: */
+        if (imei.length() != IMEI_LEN) {
+            Log.w(LOG_TAG, "phornyac: anonymize: anonymized IMEI "+
+                    imei+" has invalid length, returning null");
+            return null;
+        }
+        Log.w(LOG_TAG, "phornyac: anonymize: returning final anonymized "+
+                "IMEI="+imei);
+        return imei;
     }
-*/
 }

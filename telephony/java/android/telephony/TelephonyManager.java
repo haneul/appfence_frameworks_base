@@ -193,8 +193,13 @@ public class TelephonyManager {
              * in the TelephonyManager context calling getProcessName()
              * will actually get the name of the process that is using
              * the IMEI, instead of always getting "com.android.phone".
+             * IMEIAnonymizer.anonymize() may return null on error; if
+             * it does, then we return null as well.
              */
-            /* My phone's IMEI: 354958030334719 */
+            /* Real IMEI:       354958030334719
+             * Anonymized IMEI: 912183118953729
+             *   (should always be the same, every time)
+             */
             String deviceId = getSubscriberInfo().getDeviceId();
             Log.w("phornyac", "TelephonyManager.getDeviceId: original "+
                     "deviceId="+deviceId);
