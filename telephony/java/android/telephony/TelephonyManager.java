@@ -23,6 +23,9 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
+import android.util.Log;
+import android.privacy.IMEIAnonymizer;
+//import android.util.ProcessName;
 
 import com.android.internal.telephony.IPhoneSubInfo;
 import com.android.internal.telephony.ITelephony;
@@ -184,7 +187,21 @@ public class TelephonyManager {
      */
     public String getDeviceId() {
         try {
-            return getSubscriberInfo().getDeviceId();
+            /**
+             * We have to do the IMEI anonymization here,
+             * as opposed to further down (i.e. in GSMPhone), because
+             * in the TelephonyManager context calling getProcessName()
+             * will actually get the name of the process that is using
+             * the IMEI, instead of always getting "com.android.phone".
+             */
+            /* My phone's IMEI: 354958030334719 */
+            String deviceId = getSubscriberInfo().getDeviceId();
+            Log.w("phornyac", "TelephonyManager.getDeviceId: original "+
+                    "deviceId="+deviceId);
+            deviceId = IMEIAnonymizer.anonymize(deviceId);
+            Log.w("phornyac", "TelephonyManager.getDeviceId: anonymized "+
+                    "deviceId="+deviceId);
+            return deviceId;
         } catch (RemoteException ex) {
             return null;
         } catch (NullPointerException ex) {

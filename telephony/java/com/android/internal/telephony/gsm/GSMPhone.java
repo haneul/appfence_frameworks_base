@@ -127,7 +127,6 @@ public class GSMPhone extends PhoneBase {
     private String mImei;
     private String mImeiSv;
     private String mVmNumber;
-    private IMEIObfuscator mObfuscator;
 
     // Constructors
 
@@ -159,12 +158,6 @@ public class GSMPhone extends PhoneBase {
         }
         mStkService = StkService.getInstance(mCM, mSIMRecords, mContext,
                 (SIMFileHandler)mIccFileHandler, mSimCard);
-
-        //phornyac: construct a new Obfuscator
-        //public AESObfuscator(byte[] salt, String applicationId, String deviceId) {
-		Log.w("g-s-m", "phornyac: calling new IMEIObfuscator()");
-        mObfuscator = new IMEIObfuscator();
-		Log.w("g-s-m", "phornyac: returned from calling new IMEIObfuscator");
 
         mCM.registerForAvailable(this, EVENT_RADIO_AVAILABLE, null);
         mSIMRecords.registerForRecordsLoaded(this, EVENT_SIM_RECORDS_LOADED, null);
@@ -1287,10 +1280,6 @@ public class GSMPhone extends PhoneBase {
 
                 mImei = (String)ar.result;
         		// begin WITH_TAINT_TRACKING
-        		Log.w("g-s-m", "phornyac: mImei = \"" + mImei + "\"");
-                /* My phone's IMEI: 354958030334719 */
-                mImei = mObfuscator.anonymizeIMEI(mImei);
-        		Log.w("g-s-m", "phornyac: anonymized mImei = \"" + mImei + "\"");
                 Taint.addTaintString(mImei, Taint.TAINT_IMEI);
                 // end WITH_TAINT_TRACKING
             break;
