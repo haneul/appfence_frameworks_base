@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Config;
 import android.util.Log;
+import android.util.ProcessName;
 
 import com.android.internal.location.DummyLocationProvider;
 
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Date;
 
 /**
  * This class provides access to the system location services.  These
@@ -54,6 +56,62 @@ public class LocationManager {
     private final HashMap<GpsStatus.NmeaListener, GpsStatusListenerTransport> mNmeaListeners =
             new HashMap<GpsStatus.NmeaListener, GpsStatusListenerTransport>();
     private final GpsStatus mGpsStatus = new GpsStatus();
+
+    private static final String mPrivateProvider = "privateProvider";
+    private static final double mPrivateLat = 47.66164720058441;  //Intel
+    private static final double mPrivateLong = -122.31621980667114;  //Intel
+    private static Location mPrivateLocation =
+        initBasicLocation(mPrivateProvider, mPrivateLat, mPrivateLong);
+
+    private static final String mFakeProvider = "fakeProvider";
+    private static final double mFakeLat = 47.608673;  //Pike Place
+    private static final double mFakeLong = -122.340588;  //Pike Place
+    private static Location mFakeLocation =
+        initBasicLocation(mFakeProvider, mFakeLat, mFakeLong);
+
+    /* If the distance between the current location and mPrivateLocation is
+     * less than this number of meters, then mFakeLocation will be used
+     * instead. */
+    private static final float mPrivateDist = 1600;
+
+    private static Location initBasicLocation(String provider,
+            double latitude, double longitude) {
+        /* "By default, time, latitude, longitude, and numSatellites are 0;
+         *  hasAltitude, hasSpeed, and hasBearing are false; and there is no
+         *  extra information." */
+        Location loc = new Location(provider);
+        loc.setLatitude(latitude);
+        loc.setLongitude(longitude);
+        Date date = new Date();  //current date+time
+        loc.setTime(date.getTime());
+        Log.w(TAG, "phornyac: initBasicLocation: "+
+                "new location.toString(): ["+loc.toString()+"]");
+        return loc;
+    }
+    
+    /* Compares the given current location to the location that we want
+     * to keep private, and if they are too close to each other, returns
+     * the pre-specified "fake" location. If they are not too close to
+     * each other, returns the location that was passed in.
+     */
+    private static Location fakeLocation(Location current) {
+        Log.w(TAG, "phornyac: fakeLocation: entered");
+        if (current == null) {
+            Log.w(TAG, "phornyac: fakeLocation: location is null");
+            return current;
+        }
+        float distance = current.distanceTo(mPrivateLocation);
+        if (distance < mPrivateDist) {
+            Log.w(TAG, "phornyac: fakeLocation: distance=["+distance+
+                    "] meters, returning fake location");
+            /* Update the timestamp: */
+            mFakeLocation.setTime(current.getTime());
+            return mFakeLocation;
+        }
+        Log.w(TAG, "phornyac: fakeLocation: distance=["+distance+
+                "], returning real location");
+        return current;
+    }
 
     /**
      * Name of the network location provider.  This provider determines location based on
@@ -173,9 +231,26 @@ public class LocationManager {
         }
 
         private void _handleMessage(Message msg) {
+            Log.w(TAG, "phornyac: _handleMessage: entered");
             switch (msg.what) {
                 case TYPE_LOCATION_CHANGED:
+                    Log.w(TAG, "phornyac: _handleMessage: case "+
+                            "TYPE_LOCATION_CHANGED, passing new Location "+
+                            "to Listener.onLocationChanged() here!");
                     Location location = new Location((Location) msg.obj);
+                    Log.w(TAG, "phornyac: _handleMessage: calling "+
+                            "fakeLocation()");
+                    location = fakeLocation(location);
+                    if (location != null) {
+                        Log.w(TAG, "phornyac: processName=["+
+                                ProcessName.getProcessName()+
+                                "], location.toString(): ["+
+                                location.toString()+"]");
+                    } else {
+                        Log.w(TAG, "phornyac: processName=["+
+                                ProcessName.getProcessName()+
+                                "], location is null!");
+                    }
                     mListener.onLocationChanged(location);
                     break;
                 case TYPE_STATUS_CHANGED:
@@ -937,11 +1012,28 @@ public class LocationManager {
      * @throws IllegalArgumentException if provider is null or doesn't exist
      */
     public Location getLastKnownLocation(String provider) {
+        Log.w(TAG, "phornyac: getLastKnownLocation: entered");
         if (provider == null) {
             throw new IllegalArgumentException("provider==null");
         }
         try {
-            return mService.getLastKnownLocation(provider);
+            Location loc = mService.getLastKnownLocation(provider);
+            Log.w(TAG, "phornyac: getLastKnownLocation: got Location from "+
+                    "mService.getLastKnownLocation()");
+            Log.w(TAG, "phornyac: getLastKnownLocation: calling "+
+                    "fakeLocation()");
+            loc = fakeLocation(loc);
+            if (loc != null) {
+                Log.w(TAG, "phornyac: processName=["+
+                        ProcessName.getProcessName()+
+                        "], location.toString(): ["+
+                        loc.toString()+"]");
+            } else {
+                Log.w(TAG, "phornyac: processName=["+
+                        ProcessName.getProcessName()+
+                        "], location is null!");
+            }
+            return loc;
         } catch (RemoteException ex) {
             Log.e(TAG, "getLastKnowLocation: RemoteException", ex);
             return null;

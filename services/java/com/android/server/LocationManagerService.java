@@ -62,6 +62,7 @@ import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.PrintWriterPrinter;
+import android.util.ProcessName;
 
 import com.android.internal.location.GpsLocationProvider;
 import com.android.internal.location.LocationProviderProxy;
@@ -279,6 +280,27 @@ public class LocationManagerService extends ILocationManager.Stub implements Run
             if (mListener != null) {
                 try {
                     synchronized (this) {
+                        Log.w(TAG, "phornyac: Receiver."+
+                                "callLocationChangedLocked: passing location "+
+                                "to ILocationListener.onLocationChanged() "+
+                                "here!");
+                        /* ILocationListener type hierarchy shows that it's
+                         * implemented by ListenerTransport and
+                         * ProximityListener; ListenerTransport is part of
+                         * LocationManager, so if we want to transform/fake the
+                         * location, we already do so there. For
+                         * ProximityListener... we ignore this, for now.
+                          */
+                        if (location != null) {
+                            Log.w(TAG, "phornyac: processName=["+
+                                    ProcessName.getProcessName()+
+                                    "], location.toString(): ["+
+                                    location.toString()+"]");
+                        } else {
+                            Log.w(TAG, "phornyac: processName=["+
+                                    ProcessName.getProcessName()+
+                                    "], location is null!");
+                        }
                         // synchronize to ensure incrementPendingBroadcastsLocked()
                         // is called before decrementPendingBroadcasts()
                         mListener.onLocationChanged(location);
