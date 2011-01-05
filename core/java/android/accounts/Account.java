@@ -19,6 +19,11 @@ package android.accounts;
 import android.os.Parcelable;
 import android.os.Parcel;
 import android.text.TextUtils;
+// added by haneul
+//import android.util.Log;
+// begin WITH_TAINT_TRACKING
+import dalvik.system.Taint;
+// end WITH_TAINT_TRACKING
 
 /**
  * Value type that represents an Account in the {@link AccountManager}. This object is
@@ -28,6 +33,8 @@ import android.text.TextUtils;
 public class Account implements Parcelable {
     public final String name;
     public final String type;
+
+    private static final String TAG = "Account";
 
     public boolean equals(Object o) {
         if (o == this) return true;
@@ -52,11 +59,14 @@ public class Account implements Parcelable {
         }
         this.name = name;
         this.type = type;
+//	Log.w(TAG, "sy-account name: "+name+" type: "+type);
+	Taint.addTaintString(this.name, Taint.TAINT_ACCOUNT);
     }
 
     public Account(Parcel in) {
         this.name = in.readString();
         this.type = in.readString();
+	Taint.addTaintString(this.name, Taint.TAINT_ACCOUNT);
     }
 
     public int describeContents() {
