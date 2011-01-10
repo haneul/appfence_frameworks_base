@@ -20,6 +20,8 @@ import android.annotation.SdkConstant;
 import android.annotation.SdkConstant.SdkConstantType;
 import android.os.Binder;
 import android.os.RemoteException;
+import android.util.Log;
+import android.util.ProcessName;
 
 /**
  * Class that answers queries about the state of network connectivity. It also
@@ -176,6 +178,8 @@ public class ConnectivityManager
     }
 
     public void setNetworkPreference(int preference) {
+        Log.w("phornyac", "ConnectivityManager.setNetworkPreference: entered");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         try {
             mService.setNetworkPreference(preference);
         } catch (RemoteException e) {
@@ -183,6 +187,8 @@ public class ConnectivityManager
     }
 
     public int getNetworkPreference() {
+        Log.w("phornyac", "ConnectivityManager.getNetworkPreference: entered");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         try {
             return mService.getNetworkPreference();
         } catch (RemoteException e) {
@@ -191,6 +197,8 @@ public class ConnectivityManager
     }
 
     public NetworkInfo getActiveNetworkInfo() {
+        Log.w("phornyac", "ConnectivityManager.getActiveNetworkInfo: entered");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         try {
             return mService.getActiveNetworkInfo();
         } catch (RemoteException e) {
@@ -199,6 +207,8 @@ public class ConnectivityManager
     }
 
     public NetworkInfo getNetworkInfo(int networkType) {
+        Log.w("phornyac", "ConnectivityManager.getNetworkInfo: entered");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         try {
             return mService.getNetworkInfo(networkType);
         } catch (RemoteException e) {
@@ -207,6 +217,8 @@ public class ConnectivityManager
     }
 
     public NetworkInfo[] getAllNetworkInfo() {
+        Log.w("phornyac", "ConnectivityManager.getAllNetworkInfo: entered");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         try {
             return mService.getAllNetworkInfo();
         } catch (RemoteException e) {
@@ -244,6 +256,8 @@ public class ConnectivityManager
      * always indicates failure.
      */
     public int startUsingNetworkFeature(int networkType, String feature) {
+        Log.w("phornyac", "ConnectivityManager.startUsingNetworkFeature: entered");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         try {
             return mService.startUsingNetworkFeature(networkType, feature,
                     new Binder());
@@ -264,6 +278,8 @@ public class ConnectivityManager
      * always indicates failure.
      */
     public int stopUsingNetworkFeature(int networkType, String feature) {
+        Log.w("phornyac", "ConnectivityManager.stopUsingNetworkFeature: entered");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         try {
             return mService.stopUsingNetworkFeature(networkType, feature);
         } catch (RemoteException e) {
@@ -281,6 +297,8 @@ public class ConnectivityManager
      * @return {@code true} on success, {@code false} on failure
      */
     public boolean requestRouteToHost(int networkType, int hostAddress) {
+        Log.w("phornyac", "ConnectivityManager.requestRouteToHost: entered");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         try {
             return mService.requestRouteToHost(networkType, hostAddress);
         } catch (RemoteException e) {
@@ -300,6 +318,8 @@ public class ConnectivityManager
      * @return Whether background data usage is allowed.
      */
     public boolean getBackgroundDataSetting() {
+        //Log.w("phornyac", "ConnectivityManager.getBackgroundDataSetting: entered");
+        //Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         try {
             return mService.getBackgroundDataSetting();
         } catch (RemoteException e) {
@@ -319,6 +339,8 @@ public class ConnectivityManager
      * @hide
      */
     public void setBackgroundDataSetting(boolean allowBackgroundData) {
+        Log.w("phornyac", "ConnectivityManager.setBackgroundDataSetting: entered");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         try {
             mService.setBackgroundDataSetting(allowBackgroundData);
         } catch (RemoteException e) {

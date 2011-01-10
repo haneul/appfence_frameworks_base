@@ -40,6 +40,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.EventLog;
 import android.util.Log;
+import android.util.ProcessName;
 
 import com.android.internal.telephony.Phone;
 
@@ -739,6 +740,9 @@ public class ConnectivityService extends IConnectivityManager.Stub {
                 Settings.Secure.BACKGROUND_DATA,
                 allowBackgroundDataUsage ? 1 : 0);
 
+        Log.w("phornyac", "ConnectivityService.setBackgroundDataSetting: "+
+                "new Intent(ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED)");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         Intent broadcast = new Intent(
                 ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED);
         mContext.sendBroadcast(broadcast);
@@ -797,6 +801,9 @@ public class ConnectivityService extends IConnectivityManager.Stub {
             }
         }
 
+        Log.w("phornyac", "ConnectivityService.handleDisconnect: "+
+                "new Intent(ConnectivityManager.CONNECTIVITY_ACTION)");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         Intent intent = new Intent(ConnectivityManager.CONNECTIVITY_ACTION);
         intent.putExtra(ConnectivityManager.EXTRA_NETWORK_INFO, info);
         if (info.isFailover()) {
@@ -824,6 +831,9 @@ public class ConnectivityService extends IConnectivityManager.Stub {
         // do this before we broadcast the change
         handleConnectivityChange();
 
+        Log.w("phornyac", "ConnectivityService.handleDisconnect: "+
+                "calling sendStickyBroadcast()");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         sendStickyBroadcast(intent);
         /*
          * If the failover network is already connected, then immediately send
@@ -903,6 +913,9 @@ public class ConnectivityService extends IConnectivityManager.Stub {
     }
 
     private void sendConnectedBroadcast(NetworkInfo info) {
+        Log.w("phornyac", "ConnectivityService.sendConnectedBroadcast: "+
+                "new Intent(ConnectivityManager.CONNECTIVITY_ACTION)");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         Intent intent = new Intent(ConnectivityManager.CONNECTIVITY_ACTION);
         intent.putExtra(ConnectivityManager.EXTRA_NETWORK_INFO, info);
         if (info.isFailover()) {
@@ -916,6 +929,9 @@ public class ConnectivityService extends IConnectivityManager.Stub {
             intent.putExtra(ConnectivityManager.EXTRA_EXTRA_INFO,
                     info.getExtraInfo());
         }
+        Log.w("phornyac", "ConnectivityService.sendConnectedBroadcast: "+
+                "calling sendStickyBroadcast()");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         sendStickyBroadcast(intent);
     }
 
@@ -940,6 +956,9 @@ public class ConnectivityService extends IConnectivityManager.Stub {
                     " failed" + reasonText);
         }
 
+        Log.w("phornyac", "ConnectivityService.handleConnectionFailure: "+
+                "new Intent(ConnectivityManager.CONNECTIVITY_ACTION)");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         Intent intent = new Intent(ConnectivityManager.CONNECTIVITY_ACTION);
         intent.putExtra(ConnectivityManager.EXTRA_NETWORK_INFO, info);
         if (getActiveNetworkInfo() == null) {
@@ -970,6 +989,9 @@ public class ConnectivityService extends IConnectivityManager.Stub {
         // do this before we broadcast the change
         handleConnectivityChange();
 
+        Log.w("phornyac", "ConnectivityService.handleConnectionFailure: "+
+                "calling sendStickyBroadcast()");
+        Log.w("phornyac", "processName=["+ProcessName.getProcessName()+"]");
         sendStickyBroadcast(intent);
         /*
          * If the failover network is already connected, then immediately send

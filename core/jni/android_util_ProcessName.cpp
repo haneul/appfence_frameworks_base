@@ -32,11 +32,11 @@ namespace android {
  */
 static jstring android_util_ProcessName_getProcessName(JNIEnv* env, jobject clazz)
 {
-    LOGW("phornyac: getProcessName native: entered");
+    //LOGW("phornyac: getProcessName native: entered");
     const char * c_process_name = get_process_name();
     jstring j_process_name = env->NewStringUTF(c_process_name);
-    LOGW("phornyac: getProcessName native: returning jstring for "
-            "process_name=%s", c_process_name);
+    //LOGW("phornyac: getProcessName native: returning jstring for "
+    //        "process_name=%s", c_process_name);
     return j_process_name;
 }
 

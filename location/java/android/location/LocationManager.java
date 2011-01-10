@@ -26,6 +26,7 @@ import android.os.Message;
 import android.util.Config;
 import android.util.Log;
 import android.util.ProcessName;
+import dalvik.system.Taint;
 
 import com.android.internal.location.DummyLocationProvider;
 
@@ -72,18 +73,21 @@ public class LocationManager {
     /* If the distance between the current location and mPrivateLocation is
      * less than this number of meters, then mFakeLocation will be used
      * instead. */
-    private static final float mPrivateDist = 1600;
+    private static final float mPrivateDist = 1000;
 
     private static Location initBasicLocation(String provider,
             double latitude, double longitude) {
+        /* We want to apply taint to the location, even though it's
+         * fake... right? */
+        int tag = Taint.TAINT_LOCATION;
         /* "By default, time, latitude, longitude, and numSatellites are 0;
          *  hasAltitude, hasSpeed, and hasBearing are false; and there is no
          *  extra information." */
         Location loc = new Location(provider);
-        loc.setLatitude(latitude);
-        loc.setLongitude(longitude);
+        loc.setLatitude(Taint.addTaintDouble(latitude, tag));
+        loc.setLongitude(Taint.addTaintDouble(longitude, tag));
         Date date = new Date();  //current date+time
-        loc.setTime(date.getTime());
+        loc.setTime(Taint.addTaintLong(date.getTime(), tag));
         Log.w(TAG, "phornyac: initBasicLocation: "+
                 "new location.toString(): ["+loc.toString()+"]");
         return loc;
