@@ -43,6 +43,9 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.ArrayList;
 
+// BEGIN WITH_TAINT_TRACKING
+import dalvik.system.Taint;
+// END WITH_TAINT_TRACKING
 
 /**
  * This class provides applications access to the content model.
@@ -194,6 +197,8 @@ public abstract class ContentResolver {
      */
     public final Cursor query(Uri uri, String[] projection,
             String selection, String[] selectionArgs, String sortOrder) {
+	Log.w(TAG, "sy- query: " + uri);
+	//if(uri.toString().indexOf("com.android.contacts") != -1) return null;
         IContentProvider provider = acquireProvider(uri);
         if (provider == null) {
             return null;
@@ -205,7 +210,11 @@ public abstract class ContentResolver {
                 return null;
             }
             //Wrap the cursor object into CursorWrapperInner object
-            return new CursorWrapperInner(qCursor, provider);
+            CursorWrapperInner ret = new CursorWrapperInner(qCursor, provider);
+	    if(uri.toString().indexOf("com.android.contacts") != -1) {
+		ret.setTaint(Taint.TAINT_CONTACTS);
+	    }
+	    return ret;
         } catch (RemoteException e) {
             releaseProvider(provider);
             return null;

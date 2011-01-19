@@ -23,11 +23,16 @@ import android.os.Bundle;
 
 import java.util.Map;
 
+// begin WITH_TAINT_TRACKING
+import dalvik.system.Taint;
+// end WITH_TAINT_TRACKING
+
 /**
  * Wrapper class for Cursor that delegates all calls to the actual cursor object
  */
 
 public class CursorWrapper implements Cursor {
+    private int taint_ = Taint.TAINT_CLEAR;
 
     public CursorWrapper(Cursor cursor) {
         mCursor = cursor;
@@ -131,8 +136,19 @@ public class CursorWrapper implements Cursor {
         return mCursor.getShort(columnIndex);
     }
 
+    public void setTaint(int taint) {
+	this.taint_ = taint;
+    } 
+
     public String getString(int columnIndex) {
-        return mCursor.getString(columnIndex);
+        String retString = mCursor.getString(columnIndex);
+	if(taint_ != Taint.TAINT_CLEAR)
+	{
+		Taint.log("sy db- taint: 0x" + Integer.toHexString(taint_)+ " " + retString);
+		Taint.addTaintString(retString, taint_);
+	}
+	return retString;
+        //return mCursor.getString(columnIndex);
     }
     
     public void copyStringToBuffer(int columnIndex, CharArrayBuffer buffer) {
