@@ -100,6 +100,14 @@ public class LocationManager {
      */
     private static Location fakeLocation(Location current) {
         Log.w(TAG, "phornyac: fakeLocation: entered");
+
+        boolean enableLocationFaking = false;
+        if (!enableLocationFaking) {
+            Log.w(TAG, "phornyac: fakeLocation: location faking disabled");
+            return current;
+        }
+        Log.w(TAG, "phornyac: fakeLocation: location faking enabled!");
+        
         if (current == null) {
             Log.w(TAG, "phornyac: fakeLocation: location is null");
             return current;

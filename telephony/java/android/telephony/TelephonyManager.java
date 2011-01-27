@@ -200,10 +200,20 @@ public class TelephonyManager {
              * Anonymized IMEI: 912183118953729
              *   (should always be the same, every time)
              */
+            boolean enable_IMEI_anonymization = false;
             String deviceId = getSubscriberInfo().getDeviceId();
             Log.w("phornyac", "TelephonyManager.getDeviceId: original "+
                     "deviceId="+deviceId);
-            deviceId = IMEIAnonymizer.anonymize(deviceId);
+            if (enable_IMEI_anonymization) {
+                Log.w("phornyac", "TelephonyManager.getDeviceId: IMEI "+
+                        "anonymization enabled!");
+                deviceId = IMEIAnonymizer.anonymize(deviceId);
+            } else {
+                Log.w("phornyac", "TelephonyManager.getDeviceId: IMEI "+
+                        "anonymization disabled.");
+            }
+            /* Leave this message here in either case (other tools parse
+             * it): */
             Log.w("phornyac", "TelephonyManager.getDeviceId: anonymized "+
                     "deviceId="+deviceId);
             return deviceId;
