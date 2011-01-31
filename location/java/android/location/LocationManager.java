@@ -70,10 +70,16 @@ public class LocationManager {
     private static Location mFakeLocation =
         initBasicLocation(mFakeProvider, mFakeLat, mFakeLong);
 
+    private static final String mDefaultProvider = "defaultProvider";
+    private static final double mDefaultLat = 47.65316;  //UW CSE
+    private static final double mDefaultLong = -122.305641;  //UW CSE
+    private static Location mDefaultLocation =
+        initBasicLocation(mDefaultProvider, mDefaultLat, mDefaultLong);
+
     /* If the distance between the current location and mPrivateLocation is
      * less than this number of meters, then mFakeLocation will be used
      * instead. */
-    private static final float mPrivateDist = 1000;
+    private static final float mPrivateDist = 3200;
 
     private static Location initBasicLocation(String provider,
             double latitude, double longitude) {
@@ -93,6 +99,42 @@ public class LocationManager {
         return loc;
     }
     
+    /* If the given location is null, replace it with a default non-null
+     * location.
+     */
+    private static Location defaultLocation(Location current) {
+        Log.w(TAG, "phornyac: defaultLocation: entered");
+
+        boolean provideDefaultLocation = true;
+        if (!provideDefaultLocation) {
+            Log.w(TAG, "phornyac: defaultLocation: location default disabled");
+            return current;
+        }
+        Log.w(TAG, "phornyac: defaultLocation: location default enabled");
+        
+        if (current == null) {
+            Log.w(TAG, "phornyac: defaultLocation: location is null, "+
+                    "returning default");
+            /* For some reason, may not be initialized along with class???
+             * Was getting null pointer exceptions at setTime() line. */
+            if (mDefaultLocation == null)
+                mDefaultLocation = initBasicLocation(mDefaultProvider, mDefaultLat, mDefaultLong);
+            if (mDefaultLocation == null) {
+                Log.w(TAG, "phornyac: defaultLocation: can't initialize "+
+                        "mDefaultLocation, returning current (null)");
+                return current;
+            }
+            /* Update the timestamp: */
+            int tag = Taint.TAINT_LOCATION;
+            Date date = new Date();  //current date+time
+            mDefaultLocation.setTime(Taint.addTaintLong(date.getTime(), tag));
+            return mDefaultLocation;
+        }
+    
+        Log.w(TAG, "phornyac: defaultLocation: location not null, returning it");
+        return current;
+    }
+
     /* Compares the given current location to the location that we want
      * to keep private, and if they are too close to each other, returns
      * the pre-specified "fake" location. If they are not too close to
@@ -250,6 +292,9 @@ public class LocationManager {
                             "TYPE_LOCATION_CHANGED, passing new Location "+
                             "to Listener.onLocationChanged() here!");
                     Location location = new Location((Location) msg.obj);
+                    Log.w(TAG, "phornyac: _handleMessage: calling "+
+                            "defaultLocation()");
+                    location = defaultLocation(location);
                     Log.w(TAG, "phornyac: _handleMessage: calling "+
                             "fakeLocation()");
                     location = fakeLocation(location);
@@ -1032,6 +1077,9 @@ public class LocationManager {
             Location loc = mService.getLastKnownLocation(provider);
             Log.w(TAG, "phornyac: getLastKnownLocation: got Location from "+
                     "mService.getLastKnownLocation()");
+            Log.w(TAG, "phornyac: getLastKnownLocation: calling "+
+                    "defaultLocation()");
+            loc = defaultLocation(loc);
             Log.w(TAG, "phornyac: getLastKnownLocation: calling "+
                     "fakeLocation()");
             loc = fakeLocation(loc);
