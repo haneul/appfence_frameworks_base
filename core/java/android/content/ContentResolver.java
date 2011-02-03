@@ -198,6 +198,13 @@ public abstract class ContentResolver {
     public final Cursor query(Uri uri, String[] projection,
             String selection, String[] selectionArgs, String sortOrder) {
 	Log.w(TAG, "sy- query: " + uri);
+	File f = new File("/data/misc/block");
+	boolean block = false;
+	if(f.exists())
+	{
+		Log.w(TAG, "sy- blockexists! - " + uri); 
+		block = true;
+	}
 	//if(uri.toString().indexOf("com.android.contacts") != -1) return null;
         IContentProvider provider = acquireProvider(uri);
         if (provider == null) {
@@ -210,9 +217,36 @@ public abstract class ContentResolver {
                 return null;
             }
             //Wrap the cursor object into CursorWrapperInner object
-            CursorWrapperInner ret = new CursorWrapperInner(qCursor, provider);
+	    int taint = Taint.TAINT_CLEAR;
 	    if(uri.toString().indexOf("com.android.contacts") != -1) {
-		ret.setTaint(Taint.TAINT_CONTACTS);
+		taint = Taint.TAINT_CONTACTS;
+		Log.w(TAG, "sy- taint- contacts" + uri);
+	    }
+	    else if(uri.toString().indexOf("browser/bookmarks") != -1) {
+		taint = Taint.TAINT_HISTORY;
+		Log.w(TAG, "sy- taint- history" + uri);
+	    }
+	    else if(uri.toString().indexOf("content://calendar") != -1) {
+		taint = Taint.TAINT_CALENDAR;
+		Log.w(TAG, "sy- taint- calendar" + uri);
+	    }
+	    else if(uri.toString().indexOf("content://sms") != -1) {
+		taint = Taint.TAINT_SMS;
+		Log.w(TAG, "sy- taint- sms" + uri);
+	    }
+	    else if(uri.toString().indexOf("content://mms") != -1) {
+		taint = Taint.TAINT_SMS;
+		Log.w(TAG, "sy- taint- mms" + uri);
+	    }
+	    if(block && taint != Taint.TAINT_CLEAR)
+	    {
+		return new NullCursorWrapperInner(qCursor, provider);
+	    }
+	    
+            CursorWrapperInner ret = new CursorWrapperInner(qCursor, provider);
+	    if(taint != Taint.TAINT_CLEAR)
+	    {
+		ret.setTaint(taint);
 	    }
 	    return ret;
         } catch (RemoteException e) {
@@ -1186,6 +1220,53 @@ public abstract class ContentResolver {
         }
     }
 
+    private final class NullCursorWrapperInner extends CursorWrapper {
+        private IContentProvider mContentProvider;
+        public static final String TAG="NullCursorWrapperInner";
+        private boolean mCloseFlag = false;
+
+        NullCursorWrapperInner(Cursor cursor, IContentProvider icp) {
+            super(cursor);
+            mContentProvider = icp;
+        }
+
+	@Override
+	public boolean moveToFirst() { return false; }
+
+	@Override
+	public boolean moveToLast() { return false; }
+
+	@Override
+	public boolean moveToNext() { return false; }
+
+	@Override
+	public boolean moveToPosition(int position) { return false; }
+
+	@Override
+	public boolean moveToPrevious() { return false; }
+
+	@Override
+	public int getCount() { return 0; }
+
+
+        @Override
+        public void close() {
+            super.close();
+            ContentResolver.this.releaseProvider(mContentProvider);
+            mCloseFlag = true;
+        }
+
+        @Override
+        protected void finalize() throws Throwable {
+            try {
+                if(!mCloseFlag) {
+                    ContentResolver.this.releaseProvider(mContentProvider);
+                }
+            } finally {
+                super.finalize();
+            }
+        }
+    }
 
     private final class CursorWrapperInner extends CursorWrapper {
         private IContentProvider mContentProvider;
