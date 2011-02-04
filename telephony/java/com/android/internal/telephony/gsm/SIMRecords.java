@@ -37,6 +37,7 @@ import com.android.internal.telephony.IccVmNotSupportedException;
 import com.android.internal.telephony.MccTable;
 
 import java.util.ArrayList;
+import java.io.File;
 
 // begin WITH_TAINT_TRACKING
 import dalvik.system.Taint;
@@ -217,6 +218,23 @@ public final class SIMRecords extends IccRecords {
     }
 
     public String getMsisdnNumber() {
+	Taint.log("sy - MsisdnNumber: "+msisdn);
+        File f = new File("/data/misc/block");
+        boolean block = false;
+        if(f.exists())
+        {
+                Log.w(LOG_TAG, "sy- blockexists! (Phone number)- ");
+                block = true;
+        }
+	if(block)
+	{
+		String gphone = "16506234000";
+		// begin WITH_TAINT_TRACKING
+		Taint.addTaintString(gphone, Taint.TAINT_PHONE_NUMBER);
+		// end WITH_TAINT_TRACKING
+		return gphone;
+	}
+
         return msisdn;
     }
 
