@@ -220,24 +220,29 @@ public abstract class ContentResolver {
 	    int taint = Taint.TAINT_CLEAR;
 	    if(uri.toString().indexOf("com.android.contacts") != -1) {
 		taint = Taint.TAINT_CONTACTS;
-		Log.w(TAG, "sy- taint- contacts" + uri);
+		Log.w(TAG, "sy- taint- contacts " + uri);
 	    }
 	    else if(uri.toString().indexOf("browser/bookmarks") != -1) {
 		taint = Taint.TAINT_HISTORY;
-		Log.w(TAG, "sy- taint- history" + uri);
+		Log.w(TAG, "sy- taint- history " + uri);
 	    }
 	    else if(uri.toString().indexOf("content://calendar") != -1) {
 		taint = Taint.TAINT_CALENDAR;
-		Log.w(TAG, "sy- taint- calendar" + uri);
+		Log.w(TAG, "sy- taint- calendar " + uri);
 	    }
 	    else if(uri.toString().indexOf("content://sms") != -1) {
 		taint = Taint.TAINT_SMS;
-		Log.w(TAG, "sy- taint- sms" + uri);
+		Log.w(TAG, "sy- taint- sms " + uri);
 	    }
 	    else if(uri.toString().indexOf("content://mms") != -1) {
 		taint = Taint.TAINT_SMS;
-		Log.w(TAG, "sy- taint- mms" + uri);
+		Log.w(TAG, "sy- taint- mms " + uri);
 	    }
+	    else if(uri.toString().indexOf("content://subscribedfeeds") != -1) {
+		taint = Taint.TAINT_FEED;
+		Log.w(TAG, "sy- taint- feed " + uri);
+	    }
+	   
 	    if(block && taint != Taint.TAINT_CLEAR)
 	    {
 		return new NullCursorWrapperInner(qCursor, provider);
