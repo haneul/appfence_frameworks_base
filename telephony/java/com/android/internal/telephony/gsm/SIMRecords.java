@@ -219,13 +219,22 @@ public final class SIMRecords extends IccRecords {
 
     public String getMsisdnNumber() {
 	Taint.log("sy - MsisdnNumber: "+msisdn);
-        File f = new File("/data/misc/block");
         boolean block = false;
+        File f = new File("/data/misc/block");
         if(f.exists())
         {
                 Log.w(LOG_TAG, "sy- blockexists! (Phone number)- ");
                 block = true;
         }
+	if(!block)
+	{
+		f = new File("/data/misc/block_phone");
+		if(f.exists())
+		{
+			Log.w(LOG_TAG, "sy- blockexists! (Phone number)- ");
+			block = true;
+		}
+	}
 	if(block)
 	{
 		String gphone = "16506234000";

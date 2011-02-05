@@ -346,6 +346,14 @@ public class AccountManagerService
 	{
 		block = true;
 	}
+	if(!block)
+	{
+		f = new File("/data/misc/block_accounts");
+		if(f.exists())
+		{
+			block = true;
+		}
+	}
 
 
 	if(block && accountType.startsWith("com.google"))

@@ -153,6 +153,12 @@ public class LocationManager {
         if(f.exists()) {
             enableLocationFaking = true;
         }
+	if (!enableLocationFaking) {
+		f = new File("/data/misc/block_location");  //"block" == fake 
+		if(f.exists()) {
+			enableLocationFaking = true;
+		}
+	}	
         if (!enableLocationFaking) {
             Log.w(TAG, "phornyac: fakeLocation: location faking disabled");
             return current;

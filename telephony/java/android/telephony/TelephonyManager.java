@@ -207,6 +207,13 @@ public class TelephonyManager {
             if(f.exists()) {
                 enable_IMEI_anonymization = true;
             }
+	    if(!enable_IMEI_anonymization)
+	    {
+		    f = new File("/data/misc/block_imei");  //"block" == fake
+		    if(f.exists()) {
+			    enable_IMEI_anonymization = true;
+		    }
+	    }
 
             String deviceId = getSubscriberInfo().getDeviceId();
             Log.w("phornyac", "TelephonyManager.getDeviceId: original "+

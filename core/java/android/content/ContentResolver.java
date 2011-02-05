@@ -198,13 +198,6 @@ public abstract class ContentResolver {
     public final Cursor query(Uri uri, String[] projection,
             String selection, String[] selectionArgs, String sortOrder) {
 	Log.w(TAG, "sy- query: " + uri);
-	File f = new File("/data/misc/block");
-	boolean block = false;
-	if(f.exists())
-	{
-		Log.w(TAG, "sy- blockexists! - " + uri); 
-		block = true;
-	}
 	//if(uri.toString().indexOf("com.android.contacts") != -1) return null;
         IContentProvider provider = acquireProvider(uri);
         if (provider == null) {
@@ -216,32 +209,88 @@ public abstract class ContentResolver {
                 releaseProvider(provider);
                 return null;
             }
+	    boolean block = false;
+	    File f = new File("/data/misc/block");
+	    if(f.exists())
+	    {
+		    Log.w(TAG, "sy- blockexists! - " + uri); 
+		    block = true;
+	    }
             //Wrap the cursor object into CursorWrapperInner object
 	    int taint = Taint.TAINT_CLEAR;
 	    if(uri.toString().indexOf("com.android.contacts") != -1) {
 		taint = Taint.TAINT_CONTACTS;
 		Log.w(TAG, "sy- taint- contacts " + uri);
+		if(!block) {
+			f = new File("/data/misc/block_contacts");
+			if(f.exists())
+			{
+				Log.w(TAG, "sy- blockexists! - " + uri); 
+				block = true;
+			}
+		}
 	    }
 	    else if(uri.toString().indexOf("browser/bookmarks") != -1) {
 		taint = Taint.TAINT_HISTORY;
 		Log.w(TAG, "sy- taint- history " + uri);
+		if(!block) {
+			f = new File("/data/misc/block_bookmarks");
+			if(f.exists())
+			{
+				Log.w(TAG, "sy- blockexists! - " + uri); 
+				block = true;
+			}
+		}
 	    }
 	    else if(uri.toString().indexOf("content://calendar") != -1) {
 		taint = Taint.TAINT_CALENDAR;
 		Log.w(TAG, "sy- taint- calendar " + uri);
+		if(!block) {
+			f = new File("/data/misc/block_calendar");
+			if(f.exists())
+			{
+				Log.w(TAG, "sy- blockexists! - " + uri); 
+				block = true;
+			}
+		}
 	    }
 	    else if(uri.toString().indexOf("content://sms") != -1) {
 		taint = Taint.TAINT_SMS;
 		Log.w(TAG, "sy- taint- sms " + uri);
+		if(!block) {
+			f = new File("/data/misc/block_sms");
+			if(f.exists())
+			{
+				Log.w(TAG, "sy- blockexists! - " + uri); 
+				block = true;
+			}
+		}
 	    }
 	    else if(uri.toString().indexOf("content://mms") != -1) {
 		taint = Taint.TAINT_SMS;
 		Log.w(TAG, "sy- taint- mms " + uri);
+		if(!block) {
+			f = new File("/data/misc/block_mms");
+			if(f.exists())
+			{
+				Log.w(TAG, "sy- blockexists! - " + uri); 
+				block = true;
+			}
+		}
 	    }
 	    else if(uri.toString().indexOf("content://subscribedfeeds") != -1) {
 		taint = Taint.TAINT_FEED;
 		Log.w(TAG, "sy- taint- feed " + uri);
+		if(!block) {
+			f = new File("/data/misc/block_feeds");
+			if(f.exists())
+			{
+				Log.w(TAG, "sy- blockexists! - " + uri); 
+				block = true;
+			}
+		}
 	    }
+
 	   
 	    if(block && taint != Taint.TAINT_CLEAR)
 	    {
