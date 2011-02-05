@@ -1402,6 +1402,11 @@ void Parcel::updateTaint(const uint32_t tag)
 	LOGW("Parcel::UpdateTaint(0x%08x) -- Parcel Taint = 0x%08x --\n", tag, mTaintTag);
     }
 }
+
+void Parcel::clearTaint()
+{
+        mTaintTag = 0;
+}
 #endif
 
 #ifdef WITH_TAINT_TRACKING

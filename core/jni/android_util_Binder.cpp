@@ -1415,6 +1415,14 @@ static void android_os_Parcel_updateTaint(JNIEnv* env, jobject clazz, jint tag)
 	parcel->updateTaint(tag);
     }
 }
+
+static void android_os_Parcel_clearTaint(JNIEnv* env, jobject clazz)
+{
+    Parcel* parcel = parcelForJavaObject(env, clazz);
+    if (parcel != NULL) {
+        parcel->clearTaint();
+    }
+}
 #endif
 
 #ifdef WITH_TAINT_TRACKING
@@ -1493,6 +1501,7 @@ static const JNINativeMethod gParcelMethods[] = {
     {"enforceInterface",    "(Ljava/lang/String;)V", (void*)android_os_Parcel_enforceInterface},
 #ifdef WITH_TAINT_TRACKING
     {"updateTaint",         "(I)V", (void*)android_os_Parcel_updateTaint},
+    {"clearTaint",         "()V", (void*)android_os_Parcel_clearTaint},
     {"getTaint",            "()I", (void*)android_os_Parcel_getTaint},
 #endif
 };
