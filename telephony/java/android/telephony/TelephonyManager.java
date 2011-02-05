@@ -36,6 +36,7 @@ import com.android.internal.telephony.RILConstants;
 import com.android.internal.telephony.TelephonyProperties;
 
 import java.util.List;
+import java.io.File;
 
 /**
  * Provides access to information about the telephony services on
@@ -200,7 +201,13 @@ public class TelephonyManager {
              * Anonymized IMEI: 912183118953729
              *   (should always be the same, every time)
              */
+            //boolean enable_IMEI_anonymization = false;
             boolean enable_IMEI_anonymization = false;
+            File f = new File("/data/misc/block");  //"block" == fake
+            if(f.exists()) {
+                enable_IMEI_anonymization = true;
+            }
+
             String deviceId = getSubscriberInfo().getDeviceId();
             Log.w("phornyac", "TelephonyManager.getDeviceId: original "+
                     "deviceId="+deviceId);

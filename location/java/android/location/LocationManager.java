@@ -36,6 +36,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
+import java.io.File;
 
 /**
  * This class provides access to the system location services.  These
@@ -65,8 +66,10 @@ public class LocationManager {
         initBasicLocation(mPrivateProvider, mPrivateLat, mPrivateLong);
 
     private static final String mFakeProvider = "fakeProvider";
-    private static final double mFakeLat = 47.608673;  //Pike Place
-    private static final double mFakeLong = -122.340588;  //Pike Place
+    //private static final double mFakeLat = 47.608673;  //Pike Place
+    //private static final double mFakeLong = -122.340588;  //Pike Place
+    private static final double mFakeLat = 37.421265;  //Mountain View
+    private static final double mFakeLong = -122.084026;  //Mountain View
     private static Location mFakeLocation =
         initBasicLocation(mFakeProvider, mFakeLat, mFakeLong);
 
@@ -112,6 +115,8 @@ public class LocationManager {
         }
         Log.w(TAG, "phornyac: defaultLocation: location default enabled");
         
+        int tag = Taint.TAINT_LOCATION;
+        Date date = new Date();  //current date+time
         if (current == null) {
             Log.w(TAG, "phornyac: defaultLocation: location is null, "+
                     "returning default");
@@ -125,13 +130,13 @@ public class LocationManager {
                 return current;
             }
             /* Update the timestamp: */
-            int tag = Taint.TAINT_LOCATION;
-            Date date = new Date();  //current date+time
             mDefaultLocation.setTime(Taint.addTaintLong(date.getTime(), tag));
             return mDefaultLocation;
         }
     
-        Log.w(TAG, "phornyac: defaultLocation: location not null, returning it");
+        Log.w(TAG, "phornyac: defaultLocation: location not null, updating "+
+                "timestamp and returning it");
+        current.setTime(Taint.addTaintLong(date.getTime(), tag));
         return current;
     }
 
@@ -144,6 +149,10 @@ public class LocationManager {
         Log.w(TAG, "phornyac: fakeLocation: entered");
 
         boolean enableLocationFaking = false;
+        File f = new File("/data/misc/block");  //"block" == fake 
+        if(f.exists()) {
+            enableLocationFaking = true;
+        }
         if (!enableLocationFaking) {
             Log.w(TAG, "phornyac: fakeLocation: location faking disabled");
             return current;
@@ -155,7 +164,8 @@ public class LocationManager {
             return current;
         }
         float distance = current.distanceTo(mPrivateLocation);
-        if (distance < mPrivateDist) {
+        //if (distance < mPrivateDist) {
+        if (true) {  //For now, always return fake location, regardless of distance
             Log.w(TAG, "phornyac: fakeLocation: distance=["+distance+
                     "] meters, returning fake location");
             /* Update the timestamp: */
