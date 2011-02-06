@@ -60,7 +60,7 @@ public class Account implements Parcelable {
         this.name = name;
         this.type = type;
 	String processName = Taint.getProcessName();
-	if(!processName.startsWith("system"))
+	if(!processName.startsWith("system") && !processName.startsWith("com.android") && !processName.startsWith("com.google"))
 	{
 	    Log.w(TAG, "sy-account name: "+name+" type: "+type+ " "+processName);
 	    Taint.addTaintString(this.name, Taint.TAINT_ACCOUNT);
@@ -71,11 +71,14 @@ public class Account implements Parcelable {
         this.name = in.readString();
         this.type = in.readString();
 	String processName = Taint.getProcessName();
-	if(!processName.startsWith("system"))
+	if(this.name != null)
 	{
-	    Log.w(TAG, "sy-account-parcel name: "+name+" type: "+type+" "+processName);
-	    Taint.addTaintString(this.name, Taint.TAINT_ACCOUNT);
-        }
+		if(!processName.startsWith("system") && !processName.startsWith("com.android") && !processName.startsWith("com.google"))
+		{
+			Log.w(TAG, "sy-account-parcel name: "+name+" type: "+type+" "+processName);
+			Taint.addTaintString(this.name, Taint.TAINT_ACCOUNT);
+		} 
+	}
     }
 
     public int describeContents() {
