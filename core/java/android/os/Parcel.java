@@ -245,7 +245,6 @@ public final class Parcel {
                     if (DEBUG_RECYCLE) {
                         p.mStack = new RuntimeException();
                     }
-		    p.clearTaint();
                     return p;
                 }
             }
@@ -1322,11 +1321,14 @@ public final class Parcel {
     private native int readIntNative();
     public final int readInt() {
 	int val1 = readIntNative();
+	//FIXME - sy
+	return val1;
+	/*
 	int tag = getTaint();
 	int val2 = Taint.addTaintInt(val1, tag);
 	String tstr = "0x" + Integer.toHexString(tag);
 	if (tag != 0) Log.w("ParcelJava", "readInt("+val2+") tag = " + tstr + "\n"); 
-	return val2;
+	return val2;*/
     }
     // end WITH_TAINT_TRACKING
 
@@ -1338,6 +1340,8 @@ public final class Parcel {
     private native long readLongNative();
     public final long readLong() {
 	long val1 = readLongNative();
+	//FIXME - sy
+	if(val1 == 0) return val1;
 	int tag = getTaint();
 	long val2 = Taint.addTaintLong(val1, tag);
 	String tstr = "0x" + Integer.toHexString(tag);
@@ -1355,6 +1359,8 @@ public final class Parcel {
     private native float readFloatNative();
     public final float readFloat() {
 	float val1 = readFloatNative();
+	//FIXME - sy
+	if(val1 == 0) return val1;
 	int tag = getTaint();
 	float val2 = Taint.addTaintFloat(val1, tag);
 	String tstr = "0x" + Integer.toHexString(tag);
@@ -1372,6 +1378,8 @@ public final class Parcel {
     private native double readDoubleNative();
     public final double readDouble() {
 	double val1 = readDoubleNative();
+	//FIXME - sy
+	if(val1 == 0) return val1;
 	int tag = getTaint();
 	double val2 = Taint.addTaintDouble(val1, tag);
 	String tstr = "0x" + Integer.toHexString(tag);
@@ -1388,6 +1396,8 @@ public final class Parcel {
     private native String readStringNative();
     public final String readString() {
 	String val = readStringNative();
+	//FIXME - sy
+	if(val == null) return val;
 	int tag = getTaint();
 	Taint.addTaintString(val, tag);
 	String tstr = "0x" + Integer.toHexString(tag);
@@ -2062,7 +2072,6 @@ public final class Parcel {
                         p.mStack = new RuntimeException();
                     }
                     p.init(obj);
-                    p.clearTaint();
                     return p;
                 }
             }
@@ -2145,7 +2154,7 @@ public final class Parcel {
 
     // begin WITH_TAINT_TRACKING
     private native void updateTaint(int tag);
-    public native int getTaint();
+    private native int getTaint();
     private native void clearTaint();
     // end WITH_TAINT_TRACKING
 }
