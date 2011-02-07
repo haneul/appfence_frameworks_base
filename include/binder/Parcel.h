@@ -155,6 +155,7 @@ public:
 /* #ifdef WITH_TAINT_TRACKING */
     // Do not #ifdef this field. Parcel is used by a lot of projects
     void		updateTaint(const uint32_t tag);
+    void		clearTaint();
     uint32_t		getTaint();
 /* #endif */
         

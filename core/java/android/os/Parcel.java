@@ -245,6 +245,7 @@ public final class Parcel {
                     if (DEBUG_RECYCLE) {
                         p.mStack = new RuntimeException();
                     }
+		    p.clearTaint();
                     return p;
                 }
             }
@@ -2061,6 +2062,7 @@ public final class Parcel {
                         p.mStack = new RuntimeException();
                     }
                     p.init(obj);
+		    p.clearTaint();
                     return p;
                 }
             }
@@ -2144,5 +2146,6 @@ public final class Parcel {
     // begin WITH_TAINT_TRACKING
     private native void updateTaint(int tag);
     public native int getTaint();
+    private native void clearTaint();
     // end WITH_TAINT_TRACKING
 }
