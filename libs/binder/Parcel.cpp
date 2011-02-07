@@ -1065,15 +1065,16 @@ void Parcel::ipcSetDataReference(const uint8_t* data, size_t dataSize,
     mError = NO_ERROR;
     mData = const_cast<uint8_t*>(data);
 #ifdef WITH_TAINT_TRACKING
-    if (mData) {
-	mDataSize = mDataCapacity = (dataSize - sizeof(mTaintTag));
-	mTaintTag = *(uint32_t*)(mData+mDataSize);
-	if (mTaintTag != 0) {
-	    LOGW("ipcSetDataReference(%p:%d) -- Parcel Taint = 0x%08x --\n", mData, mDataSize, mTaintTag);
-	}
+    // PJG: fixed: no taint tag if data size is less than 4 bytes
+    if (mData && dataSize >= sizeof(mTaintTag)) {
+        mDataSize = mDataCapacity = (dataSize - sizeof(mTaintTag));
+        mTaintTag = *(uint32_t*)(mData+mDataSize);
+        if (mTaintTag != 0) {
+            LOGW("ipcSetDataReference(%p:%d) -- Parcel Taint = 0x%08x --\n", mData, mDataSize, mTaintTag);
+        }
     } else {
-	mDataSize = mDataCapacity = dataSize;
-	mTaintTag = 0; /* TAINT_CLEAR */
+        mDataSize = mDataCapacity = dataSize;
+        mTaintTag = 0; /* TAINT_CLEAR */
     }
 #else
     mDataSize = mDataCapacity = dataSize;
