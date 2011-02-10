@@ -2061,8 +2061,8 @@ public final class Parcel {
                     if (DEBUG_RECYCLE) {
                         p.mStack = new RuntimeException();
                     }
-		    p.clearTaint();
                     p.init(obj);
+                    p.clearTaint();
                     return p;
                 }
             }
