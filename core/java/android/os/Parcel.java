@@ -2154,7 +2154,7 @@ public final class Parcel {
 
     // begin WITH_TAINT_TRACKING
     private native void updateTaint(int tag);
-    private native int getTaint();
+    public native int getTaint();
     private native void clearTaint();
     // end WITH_TAINT_TRACKING
 }
