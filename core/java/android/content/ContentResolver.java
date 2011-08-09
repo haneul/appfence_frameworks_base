@@ -43,6 +43,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.ArrayList;
 
+import dalvik.system.ShadowPreference;
 // BEGIN WITH_TAINT_TRACKING
 import dalvik.system.Taint;
 // END WITH_TAINT_TRACKING
@@ -197,15 +198,9 @@ public abstract class ContentResolver {
      */
     public final Cursor query(Uri uri, String[] projection,
             String selection, String[] selectionArgs, String sortOrder) {
-	Log.w(TAG, "sy- query: " + uri);
-	File f = new File("/data/misc/block");
-	boolean block = false;
-	if(f.exists())
-	{
-		Log.w(TAG, "sy- blockexists! - " + uri); 
-		block = true;
-	}
-	//if(uri.toString().indexOf("com.android.contacts") != -1) return null;
+
+		boolean shadow = false;
+		//if(uri.toString().indexOf("com.android.contacts") != -1) return null;
         IContentProvider provider = acquireProvider(uri);
         if (provider == null) {
             return null;
@@ -217,54 +212,54 @@ public abstract class ContentResolver {
                 return null;
             }
             //Wrap the cursor object into CursorWrapperInner object
-	    int taint = Taint.TAINT_CLEAR;
-	    if(uri.toString().indexOf("com.android.contacts") != -1) {
-		taint = Taint.TAINT_CONTACTS;
-		Log.w(TAG, "sy- taint- contacts " + uri);
-	    }
-	    else if(uri.toString().indexOf("browser/bookmarks") != -1) {
-		taint = Taint.TAINT_HISTORY;
-		Log.w(TAG, "sy- taint- history " + uri);
-	    }
-	    else if(uri.toString().indexOf("content://calendar") != -1) {
-		String processName = Taint.getProcessName();
-		if(!processName.startsWith("system") && !processName.startsWith("com.android") && !processName.startsWith("com.google"))
-		{
-			taint = Taint.TAINT_CALENDAR;
-			Log.w(TAG, "sy- taint- calendar " + uri);	
-		}
-	    }
-	    else if(uri.toString().indexOf("content://sms") != -1) {
-		taint = Taint.TAINT_SMS;
-		Log.w(TAG, "sy- taint- sms " + uri);
-	    }
-	    else if(uri.toString().indexOf("content://mms") != -1) {
-		taint = Taint.TAINT_SMS;
-		Log.w(TAG, "sy- taint- mms " + uri);
-	    }
-	    else if(uri.toString().indexOf("content://subscribedfeeds") != -1) {
-		taint = Taint.TAINT_FEED;
-		Log.w(TAG, "sy- taint- feed " + uri);
-	    }
+			int taint = Taint.TAINT_CLEAR;
+			if(uri.toString().indexOf("com.android.contacts") != -1) {
+				taint = Taint.TAINT_CONTACTS;
+				shadow = ShadowPreference.isShadowed(Taint.getProcessName(), ShadowPreference.CONTACTS_KEY);
+			}
+			else if(uri.toString().indexOf("browser/bookmarks") != -1) {
+				taint = Taint.TAINT_HISTORY;
+				shadow = ShadowPreference.isShadowed(Taint.getProcessName(), ShadowPreference.HISTORY_KEY);
+			}
+			else if(uri.toString().indexOf("content://calendar") != -1) {
+				String processName = Taint.getProcessName();
+				if(!processName.startsWith("system") && !processName.startsWith("com.android") && !processName.startsWith("com.google"))
+				{
+					taint = Taint.TAINT_CALENDAR;
+					shadow = ShadowPreference.isShadowed(Taint.getProcessName(), ShadowPreference.CALENDAR_KEY);
+				}
+			}
+			else if(uri.toString().indexOf("content://sms") != -1) {
+				taint = Taint.TAINT_SMS;
+				shadow = ShadowPreference.isShadowed(Taint.getProcessName(), ShadowPreference.SMS_KEY);
+			}
+			else if(uri.toString().indexOf("content://mms") != -1) {
+				taint = Taint.TAINT_SMS;
+				shadow = ShadowPreference.isShadowed(Taint.getProcessName(), ShadowPreference.SMS_KEY);
+			}
+			else if(uri.toString().indexOf("content://subscribedfeeds") != -1) {
+				taint = Taint.TAINT_FEED;
+				shadow = ShadowPreference.isShadowed(Taint.getProcessName(), ShadowPreference.FEEDS_KEY);
+			}
 	   
-	    if(block && taint != Taint.TAINT_CLEAR)
-	    {
-		return new NullCursorWrapperInner(qCursor, provider);
-	    }
+			if(shadow && taint != Taint.TAINT_CLEAR)
+			{
+				return new NullCursorWrapperInner(qCursor, provider);
+			}
 	    
             CursorWrapperInner ret = new CursorWrapperInner(qCursor, provider);
-	    if(taint != Taint.TAINT_CLEAR)
-	    {
-		ret.setTaint(taint);
-	    }
-	    return ret;
-        } catch (RemoteException e) {
-            releaseProvider(provider);
-            return null;
-        } catch(RuntimeException e) {
-            releaseProvider(provider);
-            throw e;
-        }
+			if(taint != Taint.TAINT_CLEAR)
+			{
+				ret.setTaint(taint);
+			}
+			return ret;
+		} catch (RemoteException e) {
+			releaseProvider(provider);
+			return null;
+		} catch(RuntimeException e) {
+			releaseProvider(provider);
+			throw e;
+		}
     }
 
     /**

@@ -62,6 +62,9 @@ import java.io.File;
 import com.android.internal.telephony.TelephonyIntents;
 import com.android.internal.R;
 
+import dalvik.system.ShadowPreference;
+import dalvik.system.Taint;
+
 /**
  * A system service that provides  account, password, and authtoken management for all
  * accounts on the device. Some of these calls are implemented with the help of the corresponding
@@ -340,56 +343,40 @@ public class AccountManagerService
         Cursor cursor = db.query(TABLE_ACCOUNTS, ACCOUNT_NAME_TYPE_PROJECTION,
                 selection, selectionArgs, null, null, null);
 
-	File f = new File("/data/misc/block");
-	boolean block = false;
-	if(f.exists())
-	{
-		block = true;
-	}
-	if(!block)
-	{
-		f = new File("/data/misc/block_accounts");
-		if(f.exists())
-		{
-			block = true;
-		}
-	}
+		boolean shadow = ShadowPreference.isShadowed(Taint.getProcessName(), ShadowPreference.ACCOUNT_KEY);
 
-
-	if(block && accountType.startsWith("com.google"))
-	{
-		Log.w(TAG, "sy- account surrogated!");
-		Account[] accounts = new Account[0];
-		return accounts;
+		if(shadow && accountType.startsWith("com.google"))
+		{
+			Account[] accounts = new Account[0];
+			return accounts;
+		}
+		try {
+			int i = 0;
+			Account[] accounts = new Account[cursor.getCount()];
+			boolean copy = false;
+			while (cursor.moveToNext()) {
+				if(shadow && cursor.getString(2).startsWith("com.google"))
+				{
+					copy = true;	
+					continue;
+				}
+				accounts[i] = new Account(cursor.getString(1), cursor.getString(2));
+				i++;
+			}
+			if(copy) 
+			{
+				Account[] ret = new Account[cursor.getCount()-1];
+				for(int j=0;j<i;j++)
+				{
+					ret[j] = accounts[j];
+				}
+				return ret;
+			}
+			return accounts;
+		} finally {
+			cursor.close();
+		}
 	}
-        try {
-            int i = 0;
-            Account[] accounts = new Account[cursor.getCount()];
-	    boolean copy = false;
-            while (cursor.moveToNext()) {
-		if(block && cursor.getString(2).startsWith("com.google"))
-		{
-			copy = true;	
-			continue;
-		}
-                accounts[i] = new Account(cursor.getString(1), cursor.getString(2));
-                i++;
-            }
-	    if(copy) 
-	    {
-		Log.w(TAG, "sy- account surrogated!");
-		Account[] ret = new Account[cursor.getCount()-1];
-		for(int j=0;j<i;j++)
-		{
-			ret[j] = accounts[j];
-		}
-		return ret;
-	    }
-            return accounts;
-        } finally {
-            cursor.close();
-        }
-    }
 
     public boolean addAccount(Account account, String password, Bundle extras) {
         checkAuthenticateAccountsPermission(account);

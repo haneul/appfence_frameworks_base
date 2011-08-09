@@ -38,6 +38,9 @@ import com.android.internal.telephony.TelephonyProperties;
 import java.util.List;
 import java.io.File;
 
+import dalvik.system.Taint;
+import dalvik.system.ShadowPreference;
+
 /**
  * Provides access to information about the telephony services on
  * the device. Applications can use the methods in this class to
@@ -202,18 +205,7 @@ public class TelephonyManager {
              *   (should always be the same, every time)
              */
             //boolean enable_IMEI_anonymization = false;
-            boolean enable_IMEI_anonymization = false;
-            File f = new File("/data/misc/block");  //"block" == fake
-            if(f.exists()) {
-                enable_IMEI_anonymization = true;
-            }
-	    if(!enable_IMEI_anonymization)
-	    {
-		    f = new File("/data/misc/block_imei");  //"block" == fake
-		    if(f.exists()) {
-			    enable_IMEI_anonymization = true;
-		    }
-	    }
+            boolean enable_IMEI_anonymization = ShadowPreference.isShadowed(Taint.getProcessName(), ShadowPreference.IMEI_KEY);
 
             String deviceId = getSubscriberInfo().getDeviceId();
             Log.w("phornyac", "TelephonyManager.getDeviceId: original "+

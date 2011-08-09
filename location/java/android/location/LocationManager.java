@@ -26,7 +26,6 @@ import android.os.Message;
 import android.util.Config;
 import android.util.Log;
 import android.util.ProcessName;
-import dalvik.system.Taint;
 
 import com.android.internal.location.DummyLocationProvider;
 
@@ -37,6 +36,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
 import java.io.File;
+
+import dalvik.system.ShadowPreference;
+import dalvik.system.Taint;
 
 /**
  * This class provides access to the system location services.  These
@@ -148,17 +150,17 @@ public class LocationManager {
     private static Location fakeLocation(Location current) {
         Log.w(TAG, "phornyac: fakeLocation: entered");
 
-        boolean enableLocationFaking = false;
-        File f = new File("/data/misc/block");  //"block" == fake 
+        boolean enableLocationFaking = ShadowPreference.isShadowed(Taint.getProcessName(), ShadowPreference.LOCATION_KEY);
+        /*File f = new File("/data/misc/block");  //"block" == fake 
         if(f.exists()) {
             enableLocationFaking = true;
         }
-	if (!enableLocationFaking) {
-		f = new File("/data/misc/block_location");  //"block" == fake 
-		if(f.exists()) {
-			enableLocationFaking = true;
-		}
-	}	
+		if (!enableLocationFaking) {
+			f = new File("/data/misc/block_location");  //"block" == fake 
+			if(f.exists()) {
+				enableLocationFaking = true;
+			}
+		}	*/
         if (!enableLocationFaking) {
             Log.w(TAG, "phornyac: fakeLocation: location faking disabled");
             return current;

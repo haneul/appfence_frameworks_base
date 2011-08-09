@@ -39,6 +39,7 @@ import com.android.internal.telephony.MccTable;
 import java.util.ArrayList;
 import java.io.File;
 
+import dalvik.system.ShadowPreference;
 // begin WITH_TAINT_TRACKING
 import dalvik.system.Taint;
 // end WITH_TAINT_TRACKING
@@ -218,31 +219,14 @@ public final class SIMRecords extends IccRecords {
     }
 
     public String getMsisdnNumber() {
-	Taint.log("sy - MsisdnNumber: "+msisdn);
-        boolean block = false;
-        File f = new File("/data/misc/block");
-        if(f.exists())
-        {
-                Log.w(LOG_TAG, "sy- blockexists! (Phone number)- ");
-                block = true;
-        }
-	if(!block)
-	{
-		f = new File("/data/misc/block_phone");
-		if(f.exists())
+		if( ShadowPreference.isShadowed(Taint.getProcessName(), ShadowPreference.PHONE_KEY) )
 		{
-			Log.w(LOG_TAG, "sy- blockexists! (Phone number)- ");
-			block = true;
+			String gphone = "16506234000";
+			// begin WITH_TAINT_TRACKING
+			Taint.addTaintString(gphone, Taint.TAINT_PHONE_NUMBER);
+			// end WITH_TAINT_TRACKING
+			return gphone;
 		}
-	}
-	if(block)
-	{
-		String gphone = "16506234000";
-		// begin WITH_TAINT_TRACKING
-		Taint.addTaintString(gphone, Taint.TAINT_PHONE_NUMBER);
-		// end WITH_TAINT_TRACKING
-		return gphone;
-	}
 
         return msisdn;
     }
