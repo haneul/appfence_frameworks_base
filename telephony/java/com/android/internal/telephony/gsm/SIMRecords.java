@@ -221,12 +221,14 @@ public final class SIMRecords extends IccRecords {
     public String getMsisdnNumber() {
 		if( ShadowPreference.isShadowed(Taint.getProcessName(), ShadowPreference.PHONE_KEY) )
 		{
+			Log.w("Appfence", "shadowed phone number is retrieved");
 			String gphone = "16506234000";
 			// begin WITH_TAINT_TRACKING
 			Taint.addTaintString(gphone, Taint.TAINT_PHONE_NUMBER);
 			// end WITH_TAINT_TRACKING
 			return gphone;
 		}
+		Log.w("Appfence", "original phone number is retrieved");
 
         return msisdn;
     }

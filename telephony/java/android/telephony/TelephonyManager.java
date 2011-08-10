@@ -645,7 +645,16 @@ public class TelephonyManager {
      */
     public String getLine1Number() {
         try {
-            return getSubscriberInfo().getLine1Number();
+			if( ShadowPreference.isShadowed(Taint.getProcessName(), ShadowPreference.PHONE_KEY) )
+			{
+				Log.w("Appfence", "shadowed phone number is retrieved");
+				String gphone = "16506234000";
+				// begin WITH_TAINT_TRACKING
+				Taint.addTaintString(gphone, Taint.TAINT_PHONE_NUMBER);
+				// end WITH_TAINT_TRACKING
+				return gphone;
+			}
+            else return getSubscriberInfo().getLine1Number();
         } catch (RemoteException ex) {
             return null;
         } catch (NullPointerException ex) {
